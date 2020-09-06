@@ -6,13 +6,15 @@ jobs:
   cargotest:
     docker:
       - image: cimg/base:2020.09
+    environment:
+       PATH: /home/circleci/.cargo/bin:$PATH
     steps:
       - run:
           name: Setup rust environment
           command: >- 
             curl -O https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init &&
             chmod +x rustup-init &&
-            ./rustup-init -y --default-toolchain 1.46.0 &&
+            ./rustup-init -y --no-modify-path --default-toolchain 1.46.0 &&
             rm rustup-init &&
             rustc --version &&
             cargo --version
