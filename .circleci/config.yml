@@ -7,8 +7,6 @@ jobs:
     docker:
       - image: cimg/base:2020.09
     environment:
-       PATH: /home/circleci/.cargo/bin:$PATH
-    environment:
        BASH_ENV: ~/.bashrc
     steps:
       - run:
