@@ -291,6 +291,7 @@ impl DmaFile {
 pub(crate) mod test {
     use super::*;
     use crate::Local;
+    use nix::sys::statfs;
     use std::path::PathBuf;
 
     #[derive(Copy, Clone)]
@@ -340,13 +341,21 @@ pub(crate) mod test {
         };
 
         let mut dir = std::env::temp_dir();
-        dir.push(test_name);
-        let _ = std::fs::remove_dir_all(&dir);
-        std::fs::create_dir_all(&dir).unwrap();
-        vec.push(TestDirectory {
-            path: dir,
-            kind: TestDirectoryKind::TempFs,
-        });
+        let stats = statfs::statfs(&dir).unwrap();
+        if stats.filesystem_type() == statfs::TMPFS_MAGIC {
+            dir.push(test_name);
+            let _ = std::fs::remove_dir_all(&dir);
+            std::fs::create_dir_all(&dir).unwrap();
+            vec.push(TestDirectory {
+                path: dir,
+                kind: TestDirectoryKind::TempFs,
+            });
+        } else {
+            eprintln!(
+                "Glommio runs some tests against a temporary directory. \
+                To run these tests, please set TMPDIR to a tmpfs-backed directory."
+            );
+        }
         return vec;
     }
 
